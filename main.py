@@ -12,7 +12,7 @@ app = Flask(__name__)
 API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
 
 # 🎙️ ID de voz (ejemplo). Pon aquí la tuya:
-VOICE_ID = "pINIz6obpgpDQGcfmaJgB"
+VOICE_ID = "bIHbv24MWmeRgasZH58o"
 
 @app.route("/")
 def home():
