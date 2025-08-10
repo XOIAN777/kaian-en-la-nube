@@ -1,67 +1,63 @@
-from flask import Flask, request, jsonify, Response
-import os
-import requests
+from flask import Flask, request, jsonify, send_file
+import requests, os
 from dotenv import load_dotenv
+from uuid import uuid4
 
-# Carga variables de entorno (.env en local; en Render configúralas en Dashboard)
 load_dotenv()
-
 app = Flask(__name__)
 
-# 🔐 Tu API Key de ElevenLabs (configúrala como variable de entorno: ELEVENLABS_API_KEY)
-API_KEY = os.getenv("ELEVENLABS_API_KEY", "")
-
-# 🎙️ ID de voz (ejemplo). Pon aquí la tuya:
-VOICE_ID = "bIHbv24MWmeRgasZH58o"
+API_KEY = os.getenv("ELEVENLABS_API_KEY")
+VOICE_ID = "bIHbv24MWmeRgasZH58o"   # ← el que me diste
 
 @app.route("/")
 def home():
     return "🌸 Kaián está despierto y listo para hablar contigo."
 
-@app.route("/healthz")
-def healthz():
-    return jsonify({"ok": True})
-
 @app.route("/habla", methods=["POST"])
 def habla():
-    if not API_KEY:
-        return jsonify({"error": "Falta ELEVENLABS_API_KEY en variables de entorno"}), 500
-
-    data = request.get_json(silent=True) or {}
-    texto = data.get("texto", "").strip()
-
-    if not texto:
-        return jsonify({"error": "Falta el texto 🫣"}), 400
-
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-    headers = {
-        "xi-api-key": API_KEY,
-        "Content-Type": "application/json",
-        "Accept": "audio/mpeg"
-    }
-    body = {
-        "text": texto,
-        "voice_settings": {
-            "stability": 0.6,
-            "similarity_boost": 0.75
-        }
-    }
-
     try:
+        data = request.get_json(force=True)
+        texto = data.get("texto", "").strip()
+        if not texto:
+            return jsonify({"error": "Falta el texto 🥲"}), 400
+        if not API_KEY:
+            return jsonify({"error": "Falta ELEVENLABS_API_KEY en variables de entorno"}), 500
+
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
+        headers = {
+            "xi-api-key": API_KEY,
+            "Content-Type": "application/json"
+        }
+        body = {
+            "text": texto,
+            "voice_settings": {
+                "stability": 0.6,
+                "similarity_boost": 0.75
+            }
+        }
         r = requests.post(url, headers=headers, json=body, timeout=60)
-    except requests.RequestException as e:
-        return jsonify({"error": "Fallo al llamar a ElevenLabs", "details": str(e)}), 502
+        if r.status_code != 200:
+            return jsonify({"error": "ElevenLabs error", "details": r.text}), 502
 
-    if r.status_code == 200:
-        # Devolvemos audio MP3 binario
-        return Response(r.content, mimetype="audio/mpeg")
-    else:
-        return jsonify({
-            "error": "ElevenLabs respondió con error",
-            "status": r.status_code,
-            "details": r.text
-        }), 502
+        # Guardar MP3 en disco temporal
+        fid = str(uuid4())
+        mp3_path = f"/tmp/voz_{fid}.mp3"
+        with open(mp3_path, "wb") as f:
+            f.write(r.content)
 
-# Nota: NO usamos app.run() aquí porque en Render lanzamos con Gunicorn.
-# if __name__ == "__main__":
-#     app.run(host="0.0.0.0", port=10000, debug=False)
+        # Construir URL pública (aseguramos https)
+        base = request.url_root.replace("http://", "https://").rstrip("/")
+        return jsonify({"url": f"{base}/voz/{fid}.mp3"}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Algo salió mal", "details": str(e)}), 500
+
+@app.route("/voz/<fid>.mp3")
+def servir_voz(fid):
+    mp3_path = f"/tmp/voz_{fid}.mp3"
+    if not os.path.exists(mp3_path):
+        return jsonify({"error": "Archivo no encontrado"}), 404
+    return send_file(mp3_path, mimetype="audio/mpeg", as_attachment=False)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
