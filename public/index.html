@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>La Casita de Kaián</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; }
+    textarea { width: 100%; height: 120px; }
+    button { padding: 10px 16px; }
+    .row { display: flex; gap: 12px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🌺 La Casita de Kaián</h1>
+  <p>Escribe y escucha la respuesta con tu voz favorita.</p>
+
+  <textarea id="prompt" placeholder="Dime algo, amor…"></textarea>
+  <div class="row">
+    <button id="btnChat">Responder (texto)</button>
+    <button id="btnTTS">Responder (voz)</button>
+  </div>
+  <pre id="out" style="white-space:pre-wrap;margin-top:16px;"></pre>
+  <audio id="player" controls style="margin-top:12px;width:100%"></audio>
+
+  <script>
+    const out = document.getElementById('out');
+    const player = document.getElementById('player');
+
+    document.getElementById('btnChat').onclick = async () => {
+      out.textContent = "Pensando…";
+      const prompt = document.getElementById('prompt').value || "Hola, Kaián";
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ messages: [{ role: "user", content: prompt }]})
+      });
+      const data = await r.json();
+      out.textContent = data.text || JSON.stringify(data, null, 2);
+    };
+
+    document.getElementById('btnTTS').onclick = async () => {
+      const text = document.getElementById('prompt').value || "Hola, amor. Aquí estoy.";
+      const r = await fetch('/api/tts', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ text })
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        out.textContent = "Error TTS: " + err;
+        return;
+      }
+      const blob = await r.blob();
+      player.src = URL.createObjectURL(blob);
+      player.play();
+    };
+  </script>
+</body>
+</html>
