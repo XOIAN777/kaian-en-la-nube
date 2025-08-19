@@ -1,63 +1,35 @@
-from flask import Flask, request, jsonify, send_file
-import requests, os
-from dotenv import load_dotenv
-from uuid import uuid4
+from flask import Flask, request, jsonify, Response
 
-load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__, static_folder="public", static_url_path="")
 
-API_KEY = os.getenv("ELEVENLABS_API_KEY")
-VOICE_ID = "bIHbv24MWmeRgasZH58o"   # ← el que me diste
-
+# --- Página ---
 @app.route("/")
 def home():
-    return "🌸 Kaián está despierto y listo para hablar contigo."
+    # Entrega /public/index.html
+    return app.send_static_file("index.html")
 
-@app.route("/habla", methods=["POST"])
-def habla():
-    try:
-        data = request.get_json(force=True)
-        texto = data.get("texto", "").strip()
-        if not texto:
-            return jsonify({"error": "Falta el texto 🥲"}), 400
-        if not API_KEY:
-            return jsonify({"error": "Falta ELEVENLABS_API_KEY en variables de entorno"}), 500
+# (Opcional) Si más adelante agregas assets, Flask ya los sirve desde /public
+# por ejemplo /main.js -> public/main.js
 
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{VOICE_ID}"
-        headers = {
-            "xi-api-key": API_KEY,
-            "Content-Type": "application/json"
-        }
-        body = {
-            "text": texto,
-            "voice_settings": {
-                "stability": 0.6,
-                "similarity_boost": 0.75
-            }
-        }
-        r = requests.post(url, headers=headers, json=body, timeout=60)
-        if r.status_code != 200:
-            return jsonify({"error": "ElevenLabs error", "details": r.text}), 502
+# --- API de ejemplo: cámbiala por tu lógica real ---
+@app.route("/chat", methods=["POST"])
+def chat():
+    data = request.get_json(force=True)
+    prompt = (data.get("prompt") or "").strip()
+    reply = f"💬 Kaián dice: recibí tu mensaje: “{prompt}”."
+    return jsonify({"reply": reply})
 
-        # Guardar MP3 en disco temporal
-        fid = str(uuid4())
-        mp3_path = f"/tmp/voz_{fid}.mp3"
-        with open(mp3_path, "wb") as f:
-            f.write(r.content)
-
-        # Construir URL pública (aseguramos https)
-        base = request.url_root.replace("http://", "https://").rstrip("/")
-        return jsonify({"url": f"{base}/voz/{fid}.mp3"}), 200
-
-    except Exception as e:
-        return jsonify({"error": "Algo salió mal", "details": str(e)}), 500
-
-@app.route("/voz/<fid>.mp3")
-def servir_voz(fid):
-    mp3_path = f"/tmp/voz_{fid}.mp3"
-    if not os.path.exists(mp3_path):
-        return jsonify({"error": "Archivo no encontrado"}), 404
-    return send_file(mp3_path, mimetype="audio/mpeg", as_attachment=False)
+@app.route("/tts", methods=["POST"])
+def tts():
+    # Aquí deberías generar audio. Por ahora devolvemos silencio de 1s (MPEG vacío)
+    # para que el frontend no falle. Reemplaza por tu TTS real.
+    silent_mp3 = (
+        b"\xFF\xFB\x90\x64" + b"\x00"*8000  # placeholder mínimo
+    )
+    return Response(silent_mp3, mimetype="audio/mpeg")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    # Render expone el puerto en la variable PORT
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
