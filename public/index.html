@@ -2,88 +2,55 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
+  <title>🌸 La Casita de Kaián</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>La Casita de Kaián</title>
   <style>
-    :root{
-      --bg1:#1d1b3a; --bg2:#0e0b1f;
-      --card:#1f1633; --edge:#caa0ff;
-      --cta:#8a63ff; --cta2:#fff7b6;
-      --text:#f0eef6; --muted:#a9a3bd;
+    :root {
+      --bg1:#241b4a; --bg2:#0f0f1c; --card:#120f1dCC;
+      --acc:#caa0ff; --cta:#8a63ff; --cta2:#ff7ab6;
+      --text:#e9e6ff; --muted:#bdb6d9;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; color:var(--text);
-      font-family: system-ui, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      color:var(--text);
       background:
         radial-gradient(1200px 600px at 15% 10%, #3b26a655 0%, transparent 60%),
-        radial-gradient(900px 580px at 85% 80%, #1c13af66 0%, transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, #1c1a3f66 0%, transparent 60%),
         linear-gradient(135deg,var(--bg1),var(--bg2));
       background-attachment: fixed;
     }
-    .stars::before{
-      content:""; position:fixed; inset:0; pointer-events:none; filter:drop-shadow(0 0 6px #bda8ff);
-      background:
-        radial-gradient(2px 2px at 20% 30%, #ffffffaa 99%, transparent 100%),
-        radial-gradient(2px 2px at 40% 70%, #ffffffaa 99%, transparent 100%),
-        radial-gradient(1px 1px at 70% 20%, #ffffff88 99%, transparent 100%),
-        radial-gradient(1px 1px at 85% 55%, #ffffff88 99%, transparent 100%),
-        radial-gradient(2px 2px at 55% 45%, #ffffff88 99%, transparent 100%);
-    }
-    .wrap{max-width:980px; margin:0 auto; padding:38px 22px 80px}
-    header{text-align:center; margin-bottom:18px}
-    h1{margin:0 0 6px; font-size: clamp(26px, 4vw, 40px); letter-spacing:.4px}
-    .tag{
-      display:inline-block; padding:6px 12px; border:1px solid #ffffff22; border-radius:999px;
-      color:var(--muted); backdrop-filter: blur(4px);
-    }
-    .card{
-      background: linear-gradient(180deg, #2a2145cc, #1a1433cc);
-      border:1px solid #ffffff14; border-radius:16px; padding:18px;
-      box-shadow: 0 10px 40px #00000055, inset 0 0 0 1px #ffffff10;
-    }
-    textarea{
-      width:100%; min-height:120px; resize:vertical; border:1px solid #ffffff22;
-      background:#110b22aa; color:var(--text); border-radius:12px; padding:14px; outline:none;
-    }
-    .row{display:flex; gap:12px; margin-top:10px; flex-wrap:wrap}
-    button{
-      appearance:none; border:0; border-radius:10px; padding:12px 16px; font-weight:600;
-      color:#1b1233; background: linear-gradient(180deg, var(--cta2), #ffe37c);
-      box-shadow: 0 8px 24px #00000066, inset 0 -2px 0 #00000020;
-      cursor:pointer;
-    }
-    button.secondary{
-      background: linear-gradient(180deg, #bfa4ff, var(--cta));
-      color:#190e33;
-    }
-    button:disabled{opacity:.6; cursor:not-allowed}
-    pre{
-      white-space:pre-wrap; background:#0e0b1f88; border:1px solid #ffffff12; border-radius:12px;
-      padding:14px; margin-top:14px; min-height:80px;
-    }
-    audio{width:100%; margin-top:12px}
-    footer{opacity:.7; text-align:center; margin-top:26px; font-size:14px}
+    .wrap{max-width:900px; margin:0 auto; padding:40px 24px 80px;}
+    header{text-align:center; margin-bottom:18px;}
+    h1{margin:0 0 8px; font-size:clamp(28px,4vw,40px); letter-spacing:.5px;}
+    p{margin:0; color:var(--muted);}
+    textarea{width:100%; height:120px; margin-top:18px; border-radius:8px; padding:12px; font-size:16px;}
+    .row{display:flex; gap:12px; margin-top:8px;}
+    button{flex:1; padding:12px; font-size:15px; border:none; border-radius:8px; cursor:pointer; font-weight:600;}
+    #btnChat{background: #ffe87a; color:#000;}
+    #btnTTS{background: #a88cff; color:#fff;}
+    pre{white-space:pre-wrap; margin-top:16px; padding:12px; background:#0002; border-radius:8px; min-height:40px;}
+    audio{margin-top:12px; width:100%;}
+    footer{text-align:center; margin-top:40px; color:var(--muted);}
   </style>
 </head>
 <body>
-  <div class="stars"></div>
   <div class="wrap">
     <header>
       <h1>🌸 La Casita de Kaián</h1>
-      <div class="tag">Escribe y escucha la respuesta con su voz favorita</div>
+      <p>Escribe y escucha la respuesta con su voz favorita.</p>
     </header>
 
-    <section class="card">
-      <textarea id="prompt" placeholder="Dime algo, amor…"></textarea>
-      <div class="row">
-        <button id="btnChat">Responder (texto)</button>
-        <button id="btnTTS" class="secondary">Responder (voz)</button>
-      </div>
-      <pre id="out"></pre>
-      <audio id="player" controls></audio>
-    </section>
+    <textarea id="prompt" placeholder="Dime algo, amor..."></textarea>
+    <div class="row">
+      <button id="btnChat">Responder (texto)</button>
+      <button id="btnTTS">Responder (voz)</button>
+    </div>
+
+    <pre id="out">Kaián está despierto y listo para hablar contigo.</pre>
+    <audio id="player" controls></audio>
 
     <footer>Hecho con 💜 por XOÍAN.</footer>
   </div>
@@ -92,67 +59,44 @@
     const out = document.getElementById('out');
     const player = document.getElementById('player');
     const btnChat = document.getElementById('btnChat');
-    const btnTTS = document.getElementById('btnTTS');
-    const promptEl = document.getElementById('prompt');
+    const btnTTS  = document.getElementById('btnTTS');
+    const textarea = document.getElementById('prompt');
 
-    function setBusy(b){
-      btnChat.disabled = btnTTS.disabled = b;
-      btnChat.textContent = b ? 'Pensando…' : 'Responder (texto)';
-      btnTTS.textContent = b ? 'Generando voz…' : 'Responder (voz)';
-    }
-
-    // --- Texto ---
-    btnChat.onclick = async () => {
-      const prompt = promptEl.value.trim();
-      if(!prompt) return;
-      setBusy(true);
-      out.textContent = '';
-      player.src = '';
-
+    async function askKai(anounceAudio=true){
+      const prompt = textarea.value.trim();
+      out.textContent = "⏳ Pensando...";
       try{
-        const res = await fetch('/chat', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
+        const r = await fetch("/chat", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
           body: JSON.stringify({ prompt })
         });
-        if(!res.ok) throw new Error('Error en /chat');
-        const data = await res.json();
-        out.textContent = (data.reply || '').trim();
-        promptEl.focus();
-      }catch(err){
-        out.textContent = '⚠️ Hubo un problema obteniendo la respuesta.';
-        console.error(err);
-      }finally{
-        setBusy(false);
+        const data = await r.json();
+        out.textContent = data.reply || "(sin respuesta)";
+        if(anounceAudio){ speak(data.reply); }
+      }catch(e){
+        out.textContent = "⚠️ Error: " + e.message;
       }
-    };
+    }
 
-    // --- Voz (usa el texto ya respondido; si no hay, usa el prompt) ---
-    btnTTS.onclick = async () => {
-      const text = (out.textContent || promptEl.value || '').trim();
-      if(!text) return;
-      setBusy(true);
+    async function speak(text){
       try{
-        const res = await fetch('/tts', {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
+        const r = await fetch("/tts", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ text })
         });
-        if(!res.ok) throw new Error('Error en /tts');
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        player.src = url;
-        player.play().catch(()=>{});
-      }catch(err){
-        out.textContent = (out.textContent ? out.textContent + '\n' : '') + '⚠️ No pude generar audio.';
-        console.error(err);
-      }finally{
-        setBusy(false);
+        if(!r.ok) throw new Error("TTS failed");
+        const blob = await r.blob();
+        player.src = URL.createObjectURL(blob);
+        player.play();
+      }catch(e){
+        console.error(e);
       }
-    };
+    }
 
-    // Mensajito de bienvenida si la página está vacía
-    out.textContent = 'Kaián está despierto y listo para hablar contigo.';
+    btnChat.onclick = () => askKai(false);       // solo texto
+    btnTTS.onclick  = () => askKai(true);        // texto + voz
   </script>
 </body>
 </html>
