@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: kaian-casita
+    env: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ELEVEN_API_KEY
+        sync: false
+      - key: ELEVEN_VOICE_ID
+        value: bIHbv24MWmeRgasZH58o
+    healthCheckPath: /healthz
